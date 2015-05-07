@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/eric/AndroidStudioProjects/TestAndroidWiFi/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="/home/eric/AndroidStudioProjects/TestAndroidWiFi/app/build/intermediates/pre-dexed/debug/classes-2775080e46ed87a4e4bdcbc020f3256982c4d720.jar" />
+    </item>
+    <item
+        jar="/home/eric/AndroidStudioProjects/TestWifi/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="/home/eric/AndroidStudioProjects/TestWifi/app/build/intermediates/pre-dexed/debug/classes-99829869bf23194665d201ba35fd127a40e05769.jar" />
+    </item>
+    <item
+        jar="/home/eric/AndroidStudioProjects/TestAndroidWiFi/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="/home/eric/AndroidStudioProjects/TestAndroidWiFi/app/build/intermediates/pre-dexed/debug/classes-5c99217e8f177c08b87de76f6d2650623a0451d8.jar" />
+    </item>
+    <item
+        jar="/home/eric/AndroidStudioProjects/TestAndroidWiFi/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/libs/internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="/home/eric/AndroidStudioProjects/TestAndroidWiFi/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-8dfa0d3353c6867a2a97eaf44ee16be0577da95b.jar" />
+    </item>
+    <item
+        jar="/home/eric/adt-bundle-linux-x86_64-20130917/sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.3/support-annotations-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
+        <dex dex="/home/eric/AndroidStudioProjects/TestWifi/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.3-524fc9478ae4f8e69b765fcfdb2c7cefc698e865.jar" />
+    </item>
+    <item
+        jar="/home/eric/AndroidStudioProjects/TestWifi/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/libs/internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="/home/eric/AndroidStudioProjects/TestWifi/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-71be0a0347fc0266a5ca556eabbfa11b2766201a.jar" />
+    </item>
+    <item
+        jar="/home/eric/AndroidStudioProjects/TestWifi/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="/home/eric/AndroidStudioProjects/TestWifi/app/build/intermediates/pre-dexed/debug/classes-1d7f1952bfbddb3e232640fa78997169de964e51.jar" />
+    </item>
+
+</items>
