@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -36,127 +38,65 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-            boolean bFound = false;
-
             AccessPoint accessPoint = mAccessPointList.get(position);
 
-            List<WifiConfiguration> preprocessList = mWifiManager.getConfiguredNetworks();
-
-            for(int i = 0; i < preprocessList.size(); i++) {
-                // Remove connected wifi before
-                if(preprocessList.get(i).SSID == null) {
-                    // Remove this
-                    mWifiManager.removeNetwork(preprocessList.get(i).networkId);
-                    mWifiManager.saveConfiguration();
-                    continue;
-                }
+            // If the selected AccessPoint is not Ours, do nothing, return
+            if (!(accessPoint.getSSID().contains("4FRee Headquarter") || accessPoint.getSSID().contains("CanauxMedia"))) {
+                return;
             }
 
-            List<WifiConfiguration> beforeList = mWifiManager.getConfiguredNetworks();
 
-            Log.d("Sexy", "before list size:" + beforeList.size());
+            Log.d("Yeh Yeh", "on click set selected AP:" + accessPoint);
+            SelectedAP.setSelectedAP(accessPoint);
 
-            for(int i = 0; i < beforeList.size(); i++) {
+            Log.d("Yeh Yeh", "call disconnect 222222");
 
-                Log.d("Sexy", "before list BSSID:" + beforeList.get(i).BSSID);
-                Log.d("Sexy", "before list SSID:" + beforeList.get(i).SSID);
-                Log.d("Sexy", "before list toString:" + beforeList.get(i).toString());
-                Log.d("Sexy", "before list preSharedKey:" + beforeList.get(i).preSharedKey);
-                Log.d("Sexy", "before list networkId:" + beforeList.get(i).networkId);
-                Log.d("Sexy", "before list status:" + beforeList.get(i).status);
-                Log.d("Sexy", "before list describeContents:" + beforeList.get(i).describeContents());
-               // Log.d("Sexy", "before list SSID:" + beforeList.get(i).SSID);
-                Log.d("Sexy", "accessPoint BSSID:" + accessPoint.getBSSID());
-
-                if(beforeList.get(i).BSSID != null
-                        && beforeList.get(i).BSSID.equals(accessPoint.getBSSID())) {
-                    if(!mWifiManager.disconnect()) {
-                        Log.d("CMWang", "disconnect fail");
-                    }
-                    if(!mWifiManager.enableNetwork(beforeList.get(i).networkId, true)) {
-                        Log.d("CMWang", "enableNetwork fail");
-                    }
-                    if(!mWifiManager.reconnect()) {
-                        Log.d("CMWang", "reconnect fail");
-                    }
-                    Log.d("CMWang", "same this!!!!!!!!!!!!!!!!");
-                    Log.d("CMWang", "same BSSID:" + beforeList.get(i).BSSID);
-                   // Log.d("CMWang", "same SSID:" + beforeList.get(i).SSID);
-                    bFound = true;
-                    break;
+            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                if (!mWifiManager.disconnect()) {
+                    Log.d("CMWang", "disconnect fail");
                 }
             }
+            else {
+                Log.d("Yeh Yeh", "sup disconnected run");
+                State.s_bConnectedFinished = false;
 
-            if(!bFound) {
+                if (SelectedAP.getSelectedAP() == null) {
+                    Log.d("Yeh Yeh", "selected AP null");
+                    return;
+                }
+
+                Log.d("Yeh Yeh", "before m_bReconnecting:" + State.s_bReconnecting);
+
+                if (State.s_bReconnecting) {
+                    return;
+                }
+
+                State.s_bReconnecting = true;
+
+                Log.d("Yeh Yeh", "after m_bReconnecting:" + State.s_bReconnecting);
+
+                Log.d("Yeh Yeh", "enabling and reconnecting!!!!!!!!!!!!");
                 WifiConfiguration config = new WifiConfiguration();
-                config.BSSID = accessPoint.getBSSID();
-                config.SSID = "\"" + accessPoint.getSSID() + "\"";
+                config.BSSID = SelectedAP.getSelectedAP().getBSSID();
+                config.SSID = "\"" + SelectedAP.getSelectedAP().getSSID() + "\"";
 
-                Log.d("ERic Eric", "BSSID:" + config.BSSID);
-
-                //config.SSID = "\"" + accessPoint.getSSID() + "\"";
-                //config.SSID = "\"" + "Eric Tseng Test Hotspot" + "\"";
-
-                ///////////
-                if(accessPoint.getSSID().contains("4FRee")) {
-                    Log.d("Eric Eric", "this is 4FRee");
+                if (SelectedAP.getSelectedAP().getSSID().contains("4FRee")) {
                     config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                }
-                else {
-                    Log.d("Eric Eric", "this is not 4FRee");
+                } else {
                     config.preSharedKey = "\"" + PASSWORD + "\"";
                 }
-                //////////
+
                 mWifiManager.addNetwork(config);
                 mWifiManager.saveConfiguration();
 
                 List<WifiConfiguration> list = mWifiManager.getConfiguredNetworks();
-                Log.d("CMWang", "after configured size:" + list.size());
-                for(int i = 0; i < list.size(); i++) {
-
-                    Log.d("CMWang", "BSSID:" + list.get(i).BSSID);
-                    Log.d("CMWang", "SSID:" + list.get(i).SSID);
-
-                    if(list.get(i).BSSID != null
-                            && list.get(i).BSSID.equals(config.BSSID)) {
-
-                        final int nNetworkId = list.get(i).networkId;
-
-                        Log.d("CMWang", "connect this");
-                        if(!mWifiManager.disconnect()) {
-                            Log.d("CMWang", "disconnect fail");
-                        }
-
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            public void run() {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!mWifiManager.enableNetwork(nNetworkId, true)) {
-                                            Log.d("CMWang", "enableNetwork fail");
-                                        }
-
-                                        Handler myHandler = new Handler();
-                                        myHandler.postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        if(!mWifiManager.reconnect()) {
-                                                            Log.d("CMWang", "reconnect fail");
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        }, 3000);
-                                    }
-                                });
-                            }
-                        }, 3000);
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).BSSID != null && list.get(i).BSSID.equals(config.BSSID)) {
+                        mWifiManager.enableNetwork(list.get(i).networkId, true);
+                        mWifiManager.reconnect();
                         break;
-
                     }
                 }
             }
@@ -166,21 +106,125 @@ public class MainActivity extends ActionBarActivity {
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mAccessPointList.clear();
+            Log.d("Yeh Yeh", "intent:" + intent.getAction());
 
-            mScanResultList = mWifiManager.getScanResults();
+            if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+                mAccessPointList.clear();
+                mScanResultList = mWifiManager.getScanResults();
+                for (int i = 0; i < mScanResultList.size(); i++) {
+                    String strBSSID = mScanResultList.get(i).BSSID;
+                    String strSSID = mScanResultList.get(i).SSID;
+                    String strLevel = Integer.toString(mScanResultList.get(i).level);
 
-            for(int i = 0; i < mScanResultList.size(); i++) {
-                String strBSSID = mScanResultList.get(i).BSSID;
-                String strSSID = mScanResultList.get(i).SSID;
-                String strLevel = Integer.toString(mScanResultList.get(i).level);
+                    AccessPoint accessPoint = new AccessPoint(strBSSID, strSSID, strLevel);
+                    mAccessPointList.add(accessPoint);
+                }
+                mAdapter.notifyDataSetChanged();
+            } else if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                NetworkInfo.State state = networkInfo.getState();
 
-                AccessPoint accessPoint = new AccessPoint(strBSSID, strSSID, strLevel);
-                mAccessPointList.add(accessPoint);
+                Log.d("Yeh Yeh", "state:" + state);
+
+                if (state == NetworkInfo.State.CONNECTED) {
+                    String connectingToSsid = wifiManager.getConnectionInfo().getSSID().replace("\"", "");
+                    String connectingToBSsid = wifiManager.getConnectionInfo().getBSSID();
+                    int nConnectingNetworkId = wifiManager.getConnectionInfo().getNetworkId();
+
+                    if (connectingToBSsid == null || connectingToBSsid.isEmpty()) {
+                        return;
+                    }
+
+                    Log.d("Yeh Yeh", "connected ssid:" + connectingToSsid);
+                    Log.d("Yeh Yeh", "connected bssid:" + connectingToBSsid);
+
+                    if(State.s_bConnectedFinished) {
+                        return;
+                    }
+
+                    State.s_bConnectedFinished = true;
+                    State.s_bReconnecting = false;
+                    SelectedAP.setSelectedAP(null);
+                    Log.d("Yeh Yeh", "set selected AP null finished");
+
+                    // Remove others
+                    List<WifiConfiguration> savedConfig = wifiManager.getConfiguredNetworks();
+                    for (int i = 0; i < savedConfig.size(); i++) {
+                        if (savedConfig.get(i).networkId != nConnectingNetworkId) {
+                            // Remove this (Check our SSID List, if the SSID match our SSID List, remove it
+                            if (savedConfig.get(i).SSID.contains("4FRee Headquarter") ||
+                                    savedConfig.get(i).SSID.contains("CanauxMedia")) {
+                                wifiManager.removeNetwork(savedConfig.get(i).networkId);
+                            }
+                        }
+                    }
+
+
+                }
+                if (state == NetworkInfo.State.DISCONNECTED) {
+                    Log.d("Yeh Yeh", "sup disconnected run");
+                    State.s_bConnectedFinished = false;
+
+                    if (SelectedAP.getSelectedAP() == null) {
+                        Log.d("Yeh Yeh", "selected AP null");
+                        return;
+                    }
+
+                    Log.d("Yeh Yeh", "before m_bReconnecting:" + State.s_bReconnecting);
+
+                    if (State.s_bReconnecting) {
+                        return;
+                    }
+
+                    State.s_bReconnecting = true;
+
+                    Log.d("Yeh Yeh", "after m_bReconnecting:" + State.s_bReconnecting);
+
+                    Log.d("Yeh Yeh", "enabling and reconnecting!!!!!!!!!!!!");
+/*
+                    // enable and reconnect
+                    List<WifiConfiguration> beforeConfiguredList = wifiManager.getConfiguredNetworks();
+                    boolean bFound = false;
+                    for (int i = 0; i < beforeConfiguredList.size(); i++) {
+
+                        Log.d("Yian Yian", "BSSID:" + beforeConfiguredList.get(i).BSSID);
+
+                        if (beforeConfiguredList.get(i).BSSID != null
+                                && beforeConfiguredList.get(i).BSSID.equals(SelectedAP.getSelectedAP().getBSSID())) {
+                            wifiManager.enableNetwork(beforeConfiguredList.get(i).networkId, true);
+                            wifiManager.reconnect();
+                            bFound = true;
+                            break;
+                        }
+                    }
+                    */
+
+                    //  if (!bFound) {
+                    WifiConfiguration config = new WifiConfiguration();
+                    config.BSSID = SelectedAP.getSelectedAP().getBSSID();
+                    config.SSID = "\"" + SelectedAP.getSelectedAP().getSSID() + "\"";
+
+                    if (SelectedAP.getSelectedAP().getSSID().contains("4FRee")) {
+                        config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                    } else {
+                        config.preSharedKey = "\"" + PASSWORD + "\"";
+                    }
+
+                    wifiManager.addNetwork(config);
+                    wifiManager.saveConfiguration();
+
+                    List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+                    for (int i = 0; i < list.size(); i++) {
+                        if (list.get(i).BSSID != null && list.get(i).BSSID.equals(config.BSSID)) {
+                            wifiManager.enableNetwork(list.get(i).networkId, true);
+                            wifiManager.reconnect();
+                            break;
+                        }
+                    }
+                    // }
+                }
             }
-
-
-            mAdapter.notifyDataSetChanged();
         }
     };
 
@@ -199,11 +243,6 @@ public class MainActivity extends ActionBarActivity {
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiManager.setWifiEnabled(true);
 
-        //for(int i = 0; i < 100; i++) {
-       //     mWifiManager.removeNetwork(i);
-       // }
-      //  mWifiManager.saveConfiguration();
-
         mScanButton = (Button) findViewById(R.id.scan_button);
         mScanButton.setOnClickListener(mOnScanClickListener);
 
@@ -211,18 +250,22 @@ public class MainActivity extends ActionBarActivity {
         mAdapter = new SimpleAdapter(this, R.layout.layout_listitem, mAccessPointList);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(mOnListItemClickListener);
-
-
-        IntentFilter filter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        registerReceiver(mReceiver, filter);
-
-        /*
-        mAdapter = new SimpleAdapter(this, R.layout.layout_listitem, );
-
-        mListView.setAdapter();
-        */
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        registerReceiver(mReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
